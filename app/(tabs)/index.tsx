@@ -1,54 +1,89 @@
-import { Image, StyleSheet, Platform } from 'react-native';
-
+import { Image, StyleSheet, Platform, TouchableOpacity, Alert } from 'react-native';
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { useAppStore } from '@/store/useAppStore';
+import { useEffect } from 'react';
+import { Colors } from '@/constants/Colors';
+import { useColorScheme } from 'react-native';
+import { router } from 'expo-router';
 
 export default function HomeScreen() {
+  const colorScheme = useColorScheme();
+  const { stats, userName, isAuthenticated, updateStats, logout } = useAppStore();
+  
+  useEffect(() => {
+    updateStats();
+  }, []);
+  
+  const handleLogout = () => {
+    Alert.alert(
+      'Cerrar Sesión',
+      '¿Estás seguro de que quieres cerrar sesión?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { 
+          text: 'Cerrar Sesión', 
+          style: 'destructive', 
+          onPress: () => {
+            logout();
+            router.replace('/(clean)/auth');
+          }
+        },
+      ]
+    );
+  };
+
   return (
     <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
+      headerBackgroundColor={{ light: '#FFE8F9', dark: '#452541' }}
       headerImage={
         <Image
-          source={require('@/assets/images/partial-react-logo.png')}
+          source={require('@/assets/images/amity-banner.png')}
           style={styles.reactLogo}
         />
       }>
+      {/* Sección de bienvenida */}
       <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
+        <ThemedText type="title">
+          {isAuthenticated && userName ? `¡Hola, ${userName}!` : '¡Bienvenid@!'}
+        </ThemedText>
         <HelloWave />
       </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12'
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
+
+      {/* Sección de estadísticas */}
+      <ThemedView style={styles.statsContainer}>
+        <ThemedText type="subtitle">Tu Progreso</ThemedText>
+        <ThemedView style={styles.statCard}>
+          <ThemedText type="defaultSemiBold">Tareas Completadas</ThemedText>
+          <ThemedText style={styles.statValue}>{stats.completedTasks}</ThemedText>
+        </ThemedView>
+        <ThemedView style={styles.statCard}>
+          <ThemedText type="defaultSemiBold">Tareas Pendientes</ThemedText>
+          <ThemedText style={styles.statValue}>{stats.pendingTasks}</ThemedText>
+        </ThemedView>
+        <ThemedView style={styles.statCard}>
+          <ThemedText type="defaultSemiBold">Productividad</ThemedText>
+          <ThemedText style={styles.statValue}>{stats.productivityPercentage}%</ThemedText>
+        </ThemedView>
       </ThemedView>
+
+      {/* Sección de instrucciones */}
       <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
+        <ThemedText>Es un gusto para nosotros tenerte aquí.</ThemedText>
+        <ThemedText style={styles.welcomeText}>
+          Tu información se guarda automáticamente en tu dispositivo, 
+          así que no tienes que preocuparte por perder tus datos.
         </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
+        
+        {/* Botón de cerrar sesión */}
+        <TouchableOpacity 
+          style={[styles.logoutButton, { backgroundColor: Colors[colorScheme ?? 'light'].accent }]}
+          onPress={handleLogout}
+        >
+          <ThemedText style={styles.logoutButtonText}>Cerrar Sesión</ThemedText>
+        </TouchableOpacity>
       </ThemedView>
     </ParallaxScrollView>
   );
@@ -59,16 +94,49 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+    marginBottom: 20,
   },
   stepContainer: {
     gap: 8,
-    marginBottom: 8,
+    marginBottom: 20,
   },
   reactLogo: {
-    height: 178,
-    width: 290,
+    height: "100%",
+    width: "100%",
     bottom: 0,
     left: 0,
     position: 'absolute',
+  },
+  statsContainer: {
+    gap: 12,
+    marginBottom: 20,
+  },
+  statCard: {
+    backgroundColor: '#ffffff20',
+    padding: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  statValue: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginTop: 8,
+  },
+  welcomeText: {
+    textAlign: 'center',
+    lineHeight: 20,
+    opacity: 0.8,
+  },
+  logoutButton: {
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 8,
+    marginTop: 20,
+    alignSelf: 'center',
+  },
+  logoutButtonText: {
+    color: 'white',
+    fontWeight: '600',
+    fontSize: 16,
   },
 });

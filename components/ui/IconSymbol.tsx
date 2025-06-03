@@ -13,6 +13,10 @@ const MAPPING = {
   'paperplane.fill': 'send',
   'chevron.left.forwardslash.chevron.right': 'code',
   'chevron.right': 'chevron-right',
+  'heart.fill': "favorite",
+  "checkmark.circle.fill": "check-circle",
+  "calendar": "calendar-month",
+  "note": "note"
 } as Partial<
   Record<
     import('expo-symbols').SymbolViewProps['name'],
