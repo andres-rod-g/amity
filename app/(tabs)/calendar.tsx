@@ -234,30 +234,44 @@ export default function TabCalendar() {
 
         {/* Calendario */}
         <View style={styles.calendarContainer}>
-          <Calendar
-            current={selectedDate}
-            markedDates={createMarkedDates()}
-            onDayPress={(day: DateData) => setSelectedDate(day.dateString)}
-            markingType={'custom'}
-            theme={{
-              backgroundColor: Colors[colorScheme ?? 'light'].background,
-              calendarBackground: Colors[colorScheme ?? 'light'].background,
-              textSectionTitleColor: Colors[colorScheme ?? 'light'].text,
-              selectedDayBackgroundColor: Colors[colorScheme ?? 'light'].accent,
-              selectedDayTextColor: '#ffffff',
-              todayTextColor: Colors[colorScheme ?? 'light'].accent,
-              dayTextColor: Colors[colorScheme ?? 'light'].text,
-              textDisabledColor: Colors[colorScheme ?? 'light'].textDisabled,
-              arrowColor: Colors[colorScheme ?? 'light'].accent,
-              monthTextColor: Colors[colorScheme ?? 'light'].text,
-              indicatorColor: Colors[colorScheme ?? 'light'].accent,
-            }}
-          />
+          <View style={styles.calendarWrapper}>
+            <Calendar
+              monthFormat="MMMM, yyyy"
+              current={new Date(selectedDate)}
+              markedDates={createMarkedDates()}
+              onDayPress={(day: DateData) => setSelectedDate(day.dateString)}
+              markingType={'custom'}
+              disableMonthChange={false}
+              firstDay={1}
+              hideDayNames={false}
+              disableAllTouchEventsForDisabledDays={true}
+              style={styles.calendar}
+              theme={{
+                backgroundColor: Colors[colorScheme ?? 'light'].background,
+                calendarBackground: Colors[colorScheme ?? 'light'].background,
+                textSectionTitleColor: Colors[colorScheme ?? 'light'].text,
+                selectedDayBackgroundColor: Colors[colorScheme ?? 'light'].accent,
+                selectedDayTextColor: '#ffffff',
+                todayTextColor: Colors[colorScheme ?? 'light'].accent,
+                dayTextColor: Colors[colorScheme ?? 'light'].text,
+                textDisabledColor: Colors[colorScheme ?? 'light'].textDisabled,
+                arrowColor: Colors[colorScheme ?? 'light'].accent,
+                monthTextColor: Colors[colorScheme ?? 'light'].text,
+                indicatorColor: Colors[colorScheme ?? 'light'].accent,
+                textDayFontFamily: 'System',
+                textMonthFontFamily: 'System',
+                textDayHeaderFontFamily: 'System',
+                textDayFontSize: 16,
+                textMonthFontSize: 16,
+                textDayHeaderFontSize: 13,
+              }}
+            />
+          </View>
         </View>
 
         {/* Leyenda */}
         <View style={styles.legend}>
-          <ThemedText style={styles.legendTitle}>Leyenda:</ThemedText>
+          <ThemedText style={styles.legendTitle}>Categorías:</ThemedText>
           <View style={styles.legendRow}>
             <View style={styles.legendItem}>
               <View style={[styles.legendColor, { backgroundColor: '#ae30d5' }]} />
@@ -274,12 +288,22 @@ export default function TabCalendar() {
         <View style={styles.dayInfo}>
           <View style={styles.sectionHeader}>
             <ThemedText type="title">
-              {new Date(selectedDate).toLocaleDateString('es-ES', { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-              })}
+              {(() => {
+                const [year, month, day] = selectedDate.split('-').map(Number);
+                const date = new Date(year, month - 1, day);
+                
+                // Nombres de días y meses en español
+                const diasSemana = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+                const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+                
+                const diaSemana = diasSemana[date.getDay()];
+                const mes = meses[date.getMonth()];
+                
+                // Capitalizar primera letra del día
+                const diaCapitalizado = diaSemana.charAt(0).toUpperCase() + diaSemana.slice(1);
+                
+                return `${diaCapitalizado}, ${day} de ${mes} de ${year}`;
+              })()}
             </ThemedText>
             <View style={styles.actionButtons}>
               {menstrualSettings.trackingEnabled && (
@@ -594,6 +618,13 @@ const styles = StyleSheet.create({
   },
   calendarContainer: {
     marginBottom: 20,
+  },
+  calendarWrapper: {
+    overflow: 'hidden',
+    marginTop: -30,
+  },
+  calendar: {
+    marginTop: 30,
   },
   legend: {
     marginBottom: 20,
